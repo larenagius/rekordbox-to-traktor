@@ -33,10 +33,12 @@ manually after reviewing. A bad merge can never break your live library.
 Double-click:
 
 ```
-C:\Users\laren\rb2traktor-dist\rb2traktor\rb2traktor.exe
+Y:\Claude\releases\rb2traktor-0.1.0\rb2traktor.exe
 ```
 
-Keep the whole `rb2traktor` folder together — the `.exe` loads files next to it.
+Keep the whole folder together — the `.exe` loads its `_internal\` siblings.
+First launch can lag while the NAS drive wakes (it's ~170 MB of DLLs). See
+[docs/RELEASES.md](docs/RELEASES.md) for the release layout and build steps.
 
 ## Install (for running from source / development)
 
