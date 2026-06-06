@@ -92,6 +92,32 @@ class TrackTableModel(QAbstractTableModel):
                     return ""
                 return RES_TEXT[tc.resolution]
 
+        # Sort keys (the proxy sorts on Qt.UserRole): text columns sort
+        # case-insensitively a-z; numeric columns sort numerically.
+        if role == Qt.UserRole:
+            if col == 0:
+                order = {ChangeType.CONFLICT: 0, ChangeType.NEW_CUES: 1,
+                         ChangeType.NO_CHANGE: 2, ChangeType.UNMATCHED: 3}
+                return order.get(tc.change_type, 9)
+            if col == 1:
+                return (tc.rb_track.artist or "").casefold()
+            if col == 2:
+                return (tc.rb_track.title or "").casefold()
+            if col == 3:
+                return tc.match_confidence
+            if col == 4:
+                if tc.change_type is ChangeType.UNMATCHED:
+                    return -1
+                return len(tc.cues_added) + len(tc.cues_changed) + len(tc.cues_removed)
+            if col == 5:
+                if tc.rb_track.beatgrid is None:
+                    return ""
+                return RES_TEXT[tc.grid_resolution]
+            if col == 6:
+                if tc.change_type in (ChangeType.UNMATCHED, ChangeType.NO_CHANGE):
+                    return ""
+                return RES_TEXT[tc.resolution]
+
         if role == Qt.ForegroundRole and col == 0:
             return STATUS_COLOR.get(tc.change_type)
 

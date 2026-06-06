@@ -235,11 +235,18 @@ class MainWindow(QMainWindow):
         self.table = QTableView()
         self.model = TrackTableModel()
         self.proxy = TrackFilterProxy(); self.proxy.setSourceModel(self.model)
+        # Sort by a per-column key (UserRole) so numeric columns sort numerically
+        # and text columns alphabetically; clicking a header toggles asc/desc.
+        self.proxy.setSortRole(Qt.UserRole)
         self.table.setModel(self.proxy)
         self.table.setSelectionBehavior(QTableView.SelectRows)
-        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
-        self.table.horizontalHeader().setStretchLastSection(True)
-        self.table.selectionModel  # created after setModel
+        self.table.setSortingEnabled(True)
+        header = self.table.horizontalHeader()
+        header.setSectionResizeMode(QHeaderView.Interactive)
+        header.setStretchLastSection(True)
+        header.setSortIndicatorShown(True)
+        # Start in scan order; user clicks a header to sort.
+        self.table.sortByColumn(-1, Qt.AscendingOrder)
         self.table.setColumnWidth(2, 280)
         self.table.selectionModel().selectionChanged.connect(self._on_select)
         split.addWidget(self.table)

@@ -61,6 +61,23 @@ def test_table_model_rows_and_filter(qapp):
     assert proxy.rowCount() == 1
 
 
+def test_header_sorting_by_title(qapp):
+    from PySide6.QtCore import Qt
+    from rb2traktor.gui.track_model import TrackTableModel, TrackFilterProxy
+    plan = _plan()
+    model = TrackTableModel(plan)
+    proxy = TrackFilterProxy(); proxy.setSourceModel(model)
+    proxy.setSortRole(Qt.UserRole)
+
+    proxy.sort(2, Qt.AscendingOrder)  # Title column
+    titles = [proxy.index(r, 2).data() for r in range(proxy.rowCount())]
+    assert titles == sorted(titles, key=str.casefold)
+
+    proxy.sort(2, Qt.DescendingOrder)
+    titles_desc = [proxy.index(r, 2).data() for r in range(proxy.rowCount())]
+    assert titles_desc == sorted(titles, key=str.casefold, reverse=True)
+
+
 def test_bulk_and_single_resolution(qapp):
     from rb2traktor.gui.track_model import TrackTableModel
     plan = _plan()
