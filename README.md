@@ -41,18 +41,15 @@ manually after reviewing. A bad merge can never break your live library.
   Rekordbox grid while keeping your Traktor cues (or vice-versa), with bulk
   "Grids: RB / Traktor" actions and a global on/off master toggle.
 
-## Run the packaged app (no Python needed)
+## Download (no Python needed)
 
-Open a release folder and double-click `rb2traktor.exe` inside it:
-
-```
-<releases-dir>\rb2traktor-<version>\rb2traktor.exe
-```
+Grab the latest **`rb2traktor-<version>.zip`** from the
+[**Releases page**](https://github.com/larenagius/rekordbox-to-traktor/releases/latest),
+unzip it anywhere, and double-click `rb2traktor.exe`.
 
 Keep the whole folder together — the `.exe` loads its `_internal\` siblings.
-First launch can lag if the folder lives on a network drive that needs to wake
-(it's ~170 MB of DLLs). See [docs/RELEASES.md](docs/RELEASES.md) for the release
-layout and build steps.
+Windows only for now; ~170 MB unzipped, and the first launch can take a few
+seconds. See [docs/RELEASES.md](docs/RELEASES.md) for how releases are built.
 
 ## Install (for running from source / development)
 
