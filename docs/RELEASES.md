@@ -25,7 +25,7 @@ Keep the whole folder together — the exe loads its `_internal\` siblings.
 2. Run the one-command release script:
 
 ```powershell
-Y:\Claude\rb2traktor\scripts\release.ps1
+Y:\Claude\GitHub\rb2traktor\scripts\release.ps1
 ```
 
 It reads the version, runs the test suite (gate), builds the PyInstaller bundle on
