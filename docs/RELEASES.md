@@ -1,49 +1,57 @@
 # Releases
 
-Built releases live on the NAS:
+A built release is a folder + a zip:
 
 ```
-Y:\Claude\releases\
+<releases-dir>\
   rb2traktor-<version>\          # the runnable app folder (rb2traktor.exe + _internal\)
   rb2traktor-<version>.zip       # zipped copy for distribution / backup
 ```
 
+`<releases-dir>` is wherever you publish (set `RB2T_RELEASES`, else `<repo>\releases`).
 `<version>` matches `project.version` in `pyproject.toml` (currently `0.1.0`).
 
 ## Running a release
 
-Open `Y:\Claude\releases\rb2traktor-<version>\` and double-click `rb2traktor.exe`.
+Open `<releases-dir>\rb2traktor-<version>\` and double-click `rb2traktor.exe`.
 Keep the whole folder together — the exe loads its `_internal\` siblings.
 
-> **NAS cold-start note:** the app is ~170 MB of DLLs. If the NAS drive was
-> asleep it may take a while to wake and load on first launch (and feel laggy).
-> That's the drive spinning up, not the app hanging — give it a minute.
+> **Cold-start note:** the app is ~170 MB of DLLs. If the release folder is on a
+> network drive that was asleep, first launch can take a while to wake and load
+> (and feel laggy). That's the drive spinning up, not the app hanging.
 
 ## Building a new release
 
 1. Bump `version` in `pyproject.toml`.
-2. Run the one-command release script:
+2. (Optional) Point the script at your machine's locations via env vars:
 
 ```powershell
-Y:\Claude\GitHub\rb2traktor\scripts\release.ps1
+$env:RB2T_PYTHON   = "C:\path\to\venv\Scripts\python.exe"   # else uses <repo>\.venv or PATH
+$env:RB2T_RELEASES = "Y:\some\releases"                      # else uses <repo>\releases
+```
+
+3. Run the one-command release script:
+
+```powershell
+.\scripts\release.ps1
 ```
 
 It reads the version, runs the test suite (gate), builds the PyInstaller bundle on
-**local disk** (building onto the NAS trips SMB file locks), zips it, and publishes
-the app folder + zip to `Y:\Claude\releases\rb2traktor-<version>\`. Flags:
+**local disk** (building onto a network share trips SMB file locks), zips it, and
+publishes the app folder + zip to `<releases-dir>\rb2traktor-<version>\`. Flags:
 
 - `-Force` — overwrite an existing release of the same version.
 - `-SkipTests` — skip the pytest gate (not recommended).
-- `-Python <path>` / `-ReleasesRoot <path>` — override the build venv / output root.
+- `-Python <path>` / `-ReleasesRoot <path>` — override the build python / output root.
 
 All temp build dirs live under `%TEMP%` and are cleaned up automatically.
 
-> **Why not build on the NAS:** PyInstaller can't clean its temp output on the
-> SMB share (file locks). The script always builds locally and copies the result.
+> **Why not build on a network share:** PyInstaller can't clean its temp output
+> over SMB (file locks). The script always builds locally and copies the result.
 
 ## Notes
 
 - The live `collection.nml` is never modified by the app; output is always
   `collection-merge.nml`. See the safety notes in the README.
 - Release artifacts are git-ignored — they are not committed to the repo, only
-  published to `Y:\Claude\releases`.
+  published to your `<releases-dir>`.

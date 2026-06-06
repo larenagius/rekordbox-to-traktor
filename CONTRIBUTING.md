@@ -15,7 +15,7 @@ git checkout -b feat/cue-color-picker        # or fix/..., chore/..., docs/...
 
 # 3. Make changes, then TEST (the gate — must pass)
 $env:QT_QPA_PLATFORM = "offscreen"; $env:PYTHONPATH = "src"
-C:\Users\laren\rb2traktor-venv\Scripts\python.exe -m pytest
+.venv\Scripts\python.exe -m pytest      # or your venv's python ($env:RB2T_PYTHON)
 
 # 4. Commit + push the branch
 git add -A
@@ -54,7 +54,7 @@ A branch may merge to `main` only when:
 
 - Real DJ libraries or merge output (`collection.nml`, `master.db`, `rekordbox.xml`,
   `collection-merge*.nml`) — already covered by `.gitignore`.
-- Build artifacts / venvs / `dist/` — gitignored; releases go to `Y:\Claude\releases`.
+- Build artifacts / venvs / `dist/` — gitignored; releases go to your `<releases-dir>`.
 
 ## Cutting a release
 

@@ -91,9 +91,15 @@ def main():
     print("  RB unique basenames:", len(rb_names))
 
     from lxml import etree
-    tk = r"C:\Users\laren\Documents\Native Instruments\Traktor 4.5.0\collection.nml"
+    from rb2traktor.locate import find_traktor_collection
+    import sys
+    tk = find_traktor_collection(sys.argv[1] if len(sys.argv) > 1 else None)
+    if tk is None:
+        print("  (no Traktor collection found; skipping overlap check. "
+              "Pass a path or set RB2T_TRAKTOR.)")
+        return
     parser = etree.XMLParser(huge_tree=True)
-    tree = etree.parse(tk, parser)
+    tree = etree.parse(str(tk), parser)
     tk_names = set()
     for loc in tree.iter("LOCATION"):
         f = loc.get("FILE")
