@@ -4,6 +4,19 @@ One-way **Rekordbox → Traktor Pro 4** metadata merge: bring your hot cues, mem
 cues, beatgrids/BPM, and playlists from Rekordbox into Traktor — with a preview/diff
 GUI and per-track conflict resolution.
 
+## Note from Laren
+As a DJ I have relied on Traktor for many years and this became my mian library and setup, however over the years, rekordox became the go to standard for clubs, hence I ended with two seperate librarys, the club and the home one. The problem with that was that the rekordbox collection was always a bit ahead as it had the cuepoint that have been capture while playing live and if I wanted to recreate these, it always ended being a manual process that I never ended doing. So thanks to Claude Code, I was able to build a lightweight app that can read the rekordbox library, and move playlists, cues, beatgrid metadata over to traktor. 
+
+For this first iteration, this only works of Windows as it solved my problem and when I play with my Mac, I just sync everything to my Windows machine at the end of the gig. However I do intend to make a Mac version of this as I know most of the users are on the mac ecosystem.
+
+As an app, this will remain free for use by anyone and if you have any feedback, please let me know and I will try to make the changes. 
+
+Enjoy the music
+Cheers
+Laren
+
+# Overview
+
 ## The #1 safety rule
 
 **Your live `collection.nml` is never modified.** Every run writes a *new* file
