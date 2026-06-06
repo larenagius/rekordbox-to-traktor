@@ -1,0 +1,33 @@
+[project]
+name = "rb2traktor"
+version = "0.1.0"
+description = "One-way Rekordbox -> Traktor 4 metadata sync (hot cues, memory cues, beatgrids, playlists) with a preview/diff GUI. Never modifies the live collection.nml."
+readme = "README.md"
+requires-python = ">=3.10,<3.15"
+dependencies = [
+    "pyrekordbox>=0.4.4",
+    "traktor-nml-utils>=3.1.0",
+    "lxml>=5",
+    "PySide6>=6.7",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+    "pyinstaller>=6",
+]
+
+[project.scripts]
+rb2traktor = "rb2traktor.cli:main"
+rb2traktor-gui = "rb2traktor.gui.app:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

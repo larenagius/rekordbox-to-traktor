@@ -1,0 +1,121 @@
+# rb2traktor
+
+One-way **Rekordbox → Traktor Pro 4** metadata merge: bring your hot cues, memory
+cues, beatgrids/BPM, and playlists from Rekordbox into Traktor — with a preview/diff
+GUI and per-track conflict resolution.
+
+## The #1 safety rule
+
+**Your live `collection.nml` is never modified.** Every run writes a *new* file
+`collection-merge.nml` next to it (the full merged collection). You swap it in
+manually after reviewing. A bad merge can never break your live library.
+
+## What it does
+
+- Reads Rekordbox from the encrypted **`master.db`** (auto-detects the SQLCipher
+  key via `pyrekordbox`) or, as a fallback, an exported **`rekordbox.xml`**.
+- Reads your Traktor **`collection.nml`** (read-only).
+- **Matches** tracks even when the two libraries live on different drives
+  (e.g. Rekordbox on `G:` Google Drive, Traktor on `Y:`): exact path → filename +
+  size → fuzzy title/artist/duration.
+- **Translates** metadata faithfully:
+  - hot cues (slots A–H), memory cues, with **cue colors** (RB palette → Traktor `#RRGGBB`)
+  - beatgrids → Traktor `AutoGrid` + `TEMPO` (warns on multi-tempo tracks)
+  - playlists/folders → a `Rekordbox Import` folder in Traktor
+- **Conflict resolution** when both apps already have cues for a track: choose
+  per-track *Rekordbox wins / Traktor wins / Merge*, with bulk actions.
+- **Beatgrids are resolved independently of cues** — per track you can take the
+  Rekordbox grid while keeping your Traktor cues (or vice-versa), with bulk
+  "Grids: RB / Traktor" actions and a global on/off master toggle.
+
+## Run the packaged app (no Python needed)
+
+Double-click:
+
+```
+C:\Users\laren\rb2traktor-dist\rb2traktor\rb2traktor.exe
+```
+
+Keep the whole `rb2traktor` folder together — the `.exe` loads files next to it.
+
+## Install (for running from source / development)
+
+```bash
+python -m venv .venv
+.venv\Scripts\pip install -e .          # add [dev] for tests: pip install -e ".[dev]"
+```
+
+Requires Python 3.10–3.14.
+
+## Use — GUI (recommended)
+
+```bash
+.venv\Scripts\python -m rb2traktor.gui.app
+```
+
+> Build the standalone `.exe` yourself with:
+> `pyinstaller packaging/rb2traktor.spec --distpath <out> --workpath <tmp> --noconfirm`
+> (build to a **local disk** path, not a network share, to avoid file-lock errors).
+
+1. The Traktor `collection.nml` is auto-detected (newest `Traktor */collection.nml`).
+2. Leave the Rekordbox source on **master.db (auto-detect)**, or pick a `rekordbox.xml`.
+3. **Scan**. Review the track table; the right panel shows Traktor vs Rekordbox cues.
+4. Resolve any ⚠ conflicts (per-track cue radios / bulk "Cues:" buttons).
+5. Choose beatgrid source per track (the "Beatgrid for this track" radios) or in
+   bulk ("Grids: RB / Traktor"). The Grid column shows each track's choice.
+6. Optionally tick playlists to import on the **Playlists** tab.
+7. **Apply → collection-merge.nml**, then follow the on-screen swap-in steps.
+
+## Use — CLI
+
+```bash
+# Dry run: report only, write nothing
+rb2traktor --traktor "C:/Users/you/Documents/Native Instruments/Traktor 4.5.0/collection.nml" --dry-run
+
+# Write collection-merge.nml (Rekordbox wins on conflicts; grids included)
+rb2traktor --traktor ".../collection.nml" --conflict rb_wins
+
+# From an exported XML instead of master.db, and without touching grids
+rb2traktor --traktor ".../collection.nml" --rb-xml export.xml --no-grids
+```
+
+## Swapping the merge in
+
+1. **Close Traktor** (it rewrites `collection.nml` on exit).
+2. Back up your `collection.nml`.
+3. Rename `collection-merge.nml` → `collection.nml`, **or** use Traktor's
+   *File → Import Collection* against the merge file.
+4. Reopen Traktor; verify cues and grids.
+
+## How it works
+
+```
+RB master.db / xml ─┐
+                    ├─ matcher ─ engine(build SyncPlan) ─ GUI review ─ writer ─ collection-merge.nml
+Traktor collection ─┘                                                   (live file read-only)
+```
+
+Layers (in `src/rb2traktor/`): `rb_reader/` (db, xml) · `traktor_io/` (reader,
+writer, `safe_output`) · `matcher/` · `mapping/` (cues, grid, colors, playlists) ·
+`sync/` (engine, conflicts) · `gui/`.
+
+The writer is the single point that can emit files, and it physically refuses any
+path named `collection.nml` (`safe_output.assert_not_live`).
+
+## Tests
+
+```bash
+.venv\Scripts\python -m pytest                      # unit + writer + GUI smoke
+.venv\Scripts\python scripts/verify_e2e.py          # real-data end-to-end (read-only on live file)
+```
+
+## Scope (v1)
+
+In: hot/memory cues, beatgrids/BPM, playlists, RB→Traktor one-way.
+Out: loops, ratings/key/comments, writing back to Rekordbox, adding new tracks to
+Traktor (unmatched RB tracks are reported, not inserted), auto-sync daemon.
+
+## Credits
+
+- [pyrekordbox](https://github.com/dylanljones/pyrekordbox) — master.db / ANLZ access
+- Rekordbox cue color palette from [Deep-Symmetry/beat-link #51](https://github.com/Deep-Symmetry/beat-link/issues/51)
