@@ -125,14 +125,10 @@ def _fill_cue_table(table: QTableWidget, cues):
 # Main window
 # --------------------------------------------------------------------------- #
 def autodetect_traktor() -> str:
-    base = Path.home() / "Documents" / "Native Instruments"
-    if not base.exists():
-        return ""
-    candidates = list(base.glob("Traktor */collection.nml"))
-    if not candidates:
-        return ""
-    newest = max(candidates, key=lambda p: p.stat().st_mtime)
-    return str(newest)
+    from ..locate import find_traktor_collection
+
+    found = find_traktor_collection()
+    return str(found) if found else ""
 
 
 class MainWindow(QMainWindow):

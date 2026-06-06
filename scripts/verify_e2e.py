@@ -2,18 +2,25 @@
 directory. Proves the live collection.nml is untouched and the merge is correct.
 
 Run:
-    python scripts/verify_e2e.py
+    python scripts/verify_e2e.py                 # auto-detect Traktor collection
+    python scripts/verify_e2e.py <collection.nml># or pass it explicitly
+Env overrides:
+    RB2T_TRAKTOR   path to collection.nml (instead of auto-detect)
+    RB2T_SCRATCH   scratch dir (default: a temp folder)
+    VERIFY_LIMIT   limit RB tracks (debug);  VERIFY_GRIDS=0 to skip beatgrids
 """
 
 import hashlib
 import os
 import shutil
 import sys
+import tempfile
 import time
 from pathlib import Path
 
 from lxml import etree
 
+from rb2traktor.locate import find_traktor_collection
 from rb2traktor.matcher import TrackMatcher, paths
 from rb2traktor.models import ChangeType, CueKind
 from rb2traktor.rb_reader.db import RekordboxDbReader
@@ -21,8 +28,10 @@ from rb2traktor.sync import engine
 from rb2traktor.traktor_io.reader import TraktorCollection
 from rb2traktor.traktor_io.writer import MergeWriter
 
-LIVE = Path(r"C:\Users\laren\Documents\Native Instruments\Traktor 4.5.0\collection.nml")
-SCRATCH = Path(r"C:\Users\laren\rb2traktor-venv\scratch")
+LIVE = find_traktor_collection(sys.argv[1] if len(sys.argv) > 1 else None)
+if LIVE is None:
+    sys.exit("No Traktor collection.nml found. Pass it as an argument or set RB2T_TRAKTOR.")
+SCRATCH = Path(os.environ.get("RB2T_SCRATCH") or (Path(tempfile.gettempdir()) / "rb2traktor-scratch"))
 
 
 def sha(p: Path) -> str:

@@ -8,11 +8,11 @@ The two apps store file locations very differently:
 
 * **Traktor** stores location as three attributes on a ``LOCATION`` element::
 
-      <LOCATION DIR="/:Users/:laren/:Music/:House/:" FILE="track.mp3" VOLUME="C:"/>
+      <LOCATION DIR="/:Users/:dj/:Music/:House/:" FILE="track.mp3" VOLUME="C:"/>
 
   Traktor uses ``/:`` as its path separator and keeps the volume (drive) separate.
-  So a Windows file ``C:\Users\laren\Music\House\track.mp3`` becomes
-  VOLUME=``C:``, DIR=``/:Users/:laren/:Music/:House/:``, FILE=``track.mp3``.
+  So a Windows file ``C:\Users\dj\Music\House\track.mp3`` becomes
+  VOLUME=``C:``, DIR=``/:Users/:dj/:Music/:House/:``, FILE=``track.mp3``.
 
 This module turns both into a single canonical key so they can be compared.
 """
@@ -27,8 +27,8 @@ from urllib.parse import unquote
 def traktor_location_to_path(volume: str, dir_attr: str, file_attr: str) -> str:
     """Reassemble a Traktor LOCATION (VOLUME/DIR/FILE) into an OS path string.
 
-    >>> traktor_location_to_path("C:", "/:Users/:laren/:Music/:", "track.mp3")
-    'C:/Users/laren/Music/track.mp3'
+    >>> traktor_location_to_path("C:", "/:Users/:dj/:Music/:", "track.mp3")
+    'C:/Users/dj/Music/track.mp3'
     """
     # Traktor's separator is "/:". The DIR starts and ends with it.
     parts = [p for p in dir_attr.split("/:") if p != ""]

@@ -43,15 +43,16 @@ manually after reviewing. A bad merge can never break your live library.
 
 ## Run the packaged app (no Python needed)
 
-Double-click:
+Open a release folder and double-click `rb2traktor.exe` inside it:
 
 ```
-Y:\Claude\releases\rb2traktor-0.1.0\rb2traktor.exe
+<releases-dir>\rb2traktor-<version>\rb2traktor.exe
 ```
 
 Keep the whole folder together — the `.exe` loads its `_internal\` siblings.
-First launch can lag while the NAS drive wakes (it's ~170 MB of DLLs). See
-[docs/RELEASES.md](docs/RELEASES.md) for the release layout and build steps.
+First launch can lag if the folder lives on a network drive that needs to wake
+(it's ~170 MB of DLLs). See [docs/RELEASES.md](docs/RELEASES.md) for the release
+layout and build steps.
 
 ## Install (for running from source / development)
 

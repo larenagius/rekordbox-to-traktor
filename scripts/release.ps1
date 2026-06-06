@@ -1,21 +1,21 @@
 <#
 .SYNOPSIS
-    Build the rb2traktor GUI and publish a versioned release to the NAS.
+    Build the rb2traktor GUI and publish a versioned release.
 
 .DESCRIPTION
     One-command build + publish. Reads the version from pyproject.toml, runs the
-    test suite (gate), builds the PyInstaller bundle on LOCAL disk (building onto
-    the NAS trips SMB file locks), zips it, then copies the app folder and zip to
-    Y:\Claude\releases\rb2traktor-<version>\.
+    test suite (gate), builds the PyInstaller bundle on LOCAL disk (building onto a
+    network share trips SMB file locks), zips it, then copies the app folder and
+    zip to <ReleasesRoot>\rb2traktor-<version>\.
 
     Run from anywhere; the script locates the repo from its own path.
 
 .PARAMETER ReleasesRoot
-    Where releases are published. Default: Y:\Claude\releases
+    Where releases are published. Default: $env:RB2T_RELEASES, else <repo>\releases.
 
 .PARAMETER Python
-    Path to the venv's python.exe used to build/test.
-    Default: C:\Users\laren\rb2traktor-venv\Scripts\python.exe
+    python.exe used to build/test. Default: $env:RB2T_PYTHON, else <repo>\.venv,
+    else 'python' on PATH.
 
 .PARAMETER SkipTests
     Skip the pytest gate (not recommended).
@@ -24,14 +24,19 @@
     Overwrite an existing release of the same version.
 
 .EXAMPLE
+    # Set your machine's locations once (e.g. in your PowerShell profile):
+    $env:RB2T_PYTHON   = "C:\path\to\venv\Scripts\python.exe"
+    $env:RB2T_RELEASES = "Y:\some\releases"
     .\scripts\release.ps1
 .EXAMPLE
-    .\scripts\release.ps1 -Force -SkipTests
+    .\scripts\release.ps1 -ReleasesRoot D:\out -Force
 #>
 [CmdletBinding()]
 param(
-    [string]$ReleasesRoot = "Y:\Claude\releases",
-    [string]$Python = "C:\Users\laren\rb2traktor-venv\Scripts\python.exe",
+    # Defaults come from env vars; if unset they're resolved below to neutral,
+    # machine-independent locations so this script ships clean in a public repo.
+    [string]$ReleasesRoot = $env:RB2T_RELEASES,
+    [string]$Python = $env:RB2T_PYTHON,
     [switch]$SkipTests,
     [switch]$Force
 )
@@ -60,12 +65,27 @@ function Invoke-Native {
 $RepoRoot = Split-Path $PSScriptRoot -Parent
 $Spec     = Join-Path $RepoRoot "packaging\rb2traktor.spec"
 $PyProj   = Join-Path $RepoRoot "pyproject.toml"
-if (-not (Test-Path $Python)) { Fail "Python not found: $Python (build venv missing?)" }
-if (-not (Test-Path $Spec))   { Fail "Spec not found: $Spec" }
+if (-not (Test-Path $Spec)) { Fail "Spec not found: $Spec" }
 
+# Resolve Python: -Python / $RB2T_PYTHON, else a repo-local .venv, else PATH.
+if (-not $Python) {
+    $venvPy = Join-Path $RepoRoot ".venv\Scripts\python.exe"
+    $Python = if (Test-Path $venvPy) { $venvPy } else { "python" }
+}
+$resolved = Get-Command $Python -ErrorAction SilentlyContinue
+if ($resolved) { $Python = $resolved.Source }
+if (-not (Test-Path $Python)) { Fail "Python not found: '$Python' (set RB2T_PYTHON or create a .venv)" }
+
+# Resolve releases root: -ReleasesRoot / $RB2T_RELEASES, else repo-local releases\.
+if (-not $ReleasesRoot) { $ReleasesRoot = Join-Path $RepoRoot "releases" }
+
+# pyinstaller next to python, else on PATH.
 $PyDir       = Split-Path $Python -Parent
 $PyInstaller = Join-Path $PyDir "pyinstaller.exe"
-if (-not (Test-Path $PyInstaller)) { Fail "pyinstaller not in venv: $PyInstaller (pip install pyinstaller)" }
+if (-not (Test-Path $PyInstaller)) {
+    $pi = Get-Command pyinstaller -ErrorAction SilentlyContinue
+    if ($pi) { $PyInstaller = $pi.Source } else { Fail "pyinstaller not found (pip install pyinstaller into your venv)" }
+}
 
 # --- read version ----------------------------------------------------------- #
 $verMatch = Select-String -Path $PyProj -Pattern '^\s*version\s*=\s*"([^"]+)"' | Select-Object -First 1
