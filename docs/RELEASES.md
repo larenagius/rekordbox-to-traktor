@@ -21,22 +21,25 @@ Keep the whole folder together — the exe loads its `_internal\` siblings.
 
 ## Building a new release
 
-**Always build on local disk, then copy to the NAS.** Building straight onto the
-NAS share leaves PyInstaller unable to clean its temp output (SMB file locks).
+1. Bump `version` in `pyproject.toml`.
+2. Run the one-command release script:
 
 ```powershell
-# 1. Build on C: (uses the local venv)
-cd Y:\Claude\rb2traktor
-C:\Users\laren\rb2traktor-venv\Scripts\pyinstaller.exe packaging\rb2traktor.spec `
-  --distpath C:\Users\laren\rb2traktor-dist `
-  --workpath C:\Users\laren\rb2traktor-build --noconfirm
-
-# 2. Stage + zip locally, then copy the folder and zip into Y:\Claude\releases\rb2traktor-<version>\
-#    (robocopy is best for the NAS copy: robocopy <src> <dest> /E /R:2 /W:5)
+Y:\Claude\rb2traktor\scripts\release.ps1
 ```
 
-Bump `version` in `pyproject.toml` first so the release folder/zip are named for
-the new version.
+It reads the version, runs the test suite (gate), builds the PyInstaller bundle on
+**local disk** (building onto the NAS trips SMB file locks), zips it, and publishes
+the app folder + zip to `Y:\Claude\releases\rb2traktor-<version>\`. Flags:
+
+- `-Force` — overwrite an existing release of the same version.
+- `-SkipTests` — skip the pytest gate (not recommended).
+- `-Python <path>` / `-ReleasesRoot <path>` — override the build venv / output root.
+
+All temp build dirs live under `%TEMP%` and are cleaned up automatically.
+
+> **Why not build on the NAS:** PyInstaller can't clean its temp output on the
+> SMB share (file locks). The script always builds locally and copies the result.
 
 ## Notes
 
