@@ -1,0 +1,47 @@
+# TEMPORARY: validates building an x86_64 (Intel) macOS .app on an Apple Silicon
+# runner under Rosetta. Deleted before merge once proven; logic moves to release.yml.
+name: Intel build test
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["feat/intel-mac-build"]
+
+jobs:
+  x86:
+    runs-on: macos-14   # Apple Silicon; we cross-build x86_64 via Rosetta
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Ensure Rosetta
+        run: softwareupdate --install-rosetta --agree-to-license || true
+
+      - name: Install universal2 Python (python.org)
+        run: |
+          set -euxo pipefail
+          curl -sSL -o /tmp/python.pkg https://www.python.org/ftp/python/3.12.7/python-3.12.7-macos11.pkg
+          sudo installer -pkg /tmp/python.pkg -target /
+          ls -l /usr/local/bin/python3.12
+
+      - name: Build x86_64 under Rosetta
+        run: |
+          set -euxo pipefail
+          PY=/usr/local/bin/python3.12
+          arch -x86_64 "$PY" -c "import platform; print('arch:', platform.machine())"
+          arch -x86_64 "$PY" -m pip install --upgrade pip
+          arch -x86_64 "$PY" -m pip install -e ".[dev]"
+          arch -x86_64 "$PY" -m PyInstaller packaging/rb2traktor.spec --distpath dist --workpath build --noconfirm
+
+      - name: Report binary arch
+        run: |
+          BIN=dist/rb2traktor.app/Contents/MacOS/rb2traktor
+          lipo -archs "$BIN" || file "$BIN"
+
+      - name: Zip .app
+        run: ditto -c -k --sequesterRsrc --keepParent dist/rb2traktor.app rb2traktor-intel-test.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: intel-test
+          path: rb2traktor-intel-test.zip
+          if-no-files-found: error
