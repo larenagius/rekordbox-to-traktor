@@ -67,7 +67,6 @@ if sys.platform == "darwin":
         bundle_identifier="com.larenagius.rb2traktor",
         info_plist={
             "NSHighResolutionCapable": True,
-            "CFBundleShortVersionString": "0.1.0",
             "LSMinimumSystemVersion": "11.0",
         },
     )

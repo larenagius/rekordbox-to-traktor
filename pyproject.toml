@@ -1,6 +1,6 @@
 [project]
 name = "rb2traktor"
-version = "0.1.0"
+version = "0.1.1"
 description = "One-way Rekordbox -> Traktor 4 metadata sync (hot cues, memory cues, beatgrids, playlists) with a preview/diff GUI. Never modifies the live collection.nml."
 readme = "README.md"
 requires-python = ">=3.10,<3.15"
