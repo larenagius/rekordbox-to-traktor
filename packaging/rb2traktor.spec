@@ -56,3 +56,18 @@ coll = COLLECT(
     exe, a.binaries, a.zipfiles, a.datas,
     name="rb2traktor",
 )
+
+# On macOS, wrap the COLLECT output into a proper .app bundle (double-clickable,
+# no console). On Windows/Linux this is skipped and the one-folder build stands.
+if sys.platform == "darwin":
+    app = BUNDLE(
+        coll,
+        name="rb2traktor.app",
+        icon=None,
+        bundle_identifier="com.larenagius.rb2traktor",
+        info_plist={
+            "NSHighResolutionCapable": True,
+            "CFBundleShortVersionString": "0.1.0",
+            "LSMinimumSystemVersion": "11.0",
+        },
+    )
