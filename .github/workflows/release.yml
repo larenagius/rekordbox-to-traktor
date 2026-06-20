@@ -23,10 +23,11 @@ jobs:
         include:
           - os: windows-latest
             suffix: windows
-          - os: macos-13          # Intel x86_64
-            suffix: macos-intel
           - os: macos-14          # Apple Silicon arm64
             suffix: macos-apple-silicon
+          # NOTE: Intel (macos-13) is intentionally omitted — those runners are
+          # scarce/deprecated and can queue indefinitely. Add back if Intel Macs
+          # need a native build.
     steps:
       - uses: actions/checkout@v4
 
