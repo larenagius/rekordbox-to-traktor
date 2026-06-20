@@ -33,8 +33,11 @@ git push origin v0.1.1
 ```
 
 The **Release** workflow (`.github/workflows/release.yml`) builds the app on
-Windows, macOS (Intel) and macOS (Apple Silicon), zips each, and attaches them to
-the GitHub Release for that tag. No local build needed, and no Mac required.
+Windows, macOS (Apple Silicon, native) and macOS (Intel x86_64, cross-built under
+Rosetta on the Apple Silicon runner — GitHub's Intel runners queue indefinitely),
+zips each, and attaches them to the GitHub Release for that tag. No local build
+needed, and no Mac required. The Intel build runs natively on Intel Macs and also
+on Apple Silicon via Rosetta, so it's the safe pick for older machines.
 
 > macOS note: the `.app` is **unsigned**, so first launch shows a Gatekeeper
 > "unidentified developer" warning — right-click the app → **Open** → **Open**.
