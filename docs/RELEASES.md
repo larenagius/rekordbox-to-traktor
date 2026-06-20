@@ -22,6 +22,31 @@ Keep the whole folder together — the exe loads its `_internal\` siblings.
 
 ## Building a new release
 
+### Automated (recommended) — GitHub Actions builds Windows + macOS
+
+Push a version tag and the cloud does the rest:
+
+```bash
+# bump `version` in pyproject.toml first, then:
+git tag v0.1.1
+git push origin v0.1.1
+```
+
+The **Release** workflow (`.github/workflows/release.yml`) builds the app on
+Windows, macOS (Intel) and macOS (Apple Silicon), zips each, and attaches them to
+the GitHub Release for that tag. No local build needed, and no Mac required.
+
+> macOS note: the `.app` is **unsigned**, so first launch shows a Gatekeeper
+> "unidentified developer" warning — right-click the app → **Open** → **Open**.
+> (Proper notarization needs a paid Apple Developer account; can be added later.)
+
+The **CI** workflow (`.github/workflows/ci.yml`) runs the test suite on all three
+OSes on every push/PR.
+
+### Local Windows build (optional)
+
+You can still build a Windows release locally without CI:
+
 1. Bump `version` in `pyproject.toml`.
 2. (Optional) Point the script at your machine's locations via env vars:
 

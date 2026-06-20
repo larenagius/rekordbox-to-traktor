@@ -1,5 +1,8 @@
 # rb2traktor
 
+[![CI](https://github.com/larenagius/rekordbox-to-traktor/actions/workflows/ci.yml/badge.svg)](https://github.com/larenagius/rekordbox-to-traktor/actions/workflows/ci.yml)
+[![Latest release](https://img.shields.io/github/v/release/larenagius/rekordbox-to-traktor)](https://github.com/larenagius/rekordbox-to-traktor/releases/latest)
+
 One-way **Rekordbox → Traktor Pro 4** metadata merge: bring your hot cues, memory
 cues, beatgrids/BPM, and playlists from Rekordbox into Traktor — with a preview/diff
 GUI and per-track conflict resolution.
